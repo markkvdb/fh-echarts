@@ -128,36 +128,37 @@ preview_echart(EChart(pie_opts, chart_id="idx_pie"))
 
 ### HTMX Click Integration
 
-Turn chart clicks into server requests with `hx_get_click`. When a user
-clicks a data point, an HTMX GET request is fired with `name`, `value`,
-and `seriesName` as query parameters.
+Turn chart clicks into server requests with `hx_get_click`. By default,
+`name`, `value`, and `seriesName` are sent as query parameters.
 
 ``` python
-@rt('/')
-def get():
-    options = {
-        "xAxis": {"data": ["Jan", "Feb", "Mar"]},
-        "yAxis": {},
-        "series": [{"name": "Revenue", "type": "bar", "data": [100, 200, 150]}]
-    }
-    return Div(
-        EChart(options,
-               hx_get_click="/bar-clicked",
-               hx_target_click="#result"),
-        Div(id="result")
-    )
+EChart(options, hx_get_click="/bar-clicked", hx_target_click="#result")
 
 @rt('/bar-clicked')
 def get(name: str, value: int, seriesName: str):
     return P(f"Clicked {name} ({seriesName}): {value}")
 ```
 
-### Dynamic Updates with `EChartUpdate`
-
-Update an existing chart without re-creating it. Return an
-`EChartUpdate` from a route to merge new options into the chart.
+Use `hx_click_vals` to select which fields to extract from the click
+event (useful for multi-series charts):
 
 ``` python
+EChart(options, hx_get_click="/clicked",
+       hx_click_vals=["name", "seriesIndex", "dataIndex", "data"])
+```
+
+For full control, pass a JS callback via `hx_click_cb` that receives
+`params` and returns a values dict:
+
+``` python
+EChart(options, hx_get_click="/clicked",
+       hx_click_cb=JSFunc("function(params) { return {x: params.data[0], y: params.data[1]}; }"))
+
+### Dynamic Updates with `EChartUpdate`
+
+Update an existing chart without re-creating it. Return an `EChartUpdate` from a route to merge new options into the chart.
+
+```python
 import random
 
 @rt('/')
@@ -181,6 +182,44 @@ def get():
 
 Set `merge=False` to replace all options instead of merging.
 
+### Run Arbitrary JS with `EChartJS`
+
+Execute any JavaScript against a chart instance. The callback receives
+`(chart, el)` — the ECharts instance and the DOM element.
+
+``` python
+# Blur a chart
+EChartJS("mychart", "function(chart, el) { el.style.filter = 'blur(4px)'; }")
+
+# Stash current data on the DOM element
+EChartJS("mychart", "function(chart, el) { el._loadData = chart.getOption().series[0].data; }")
+
+# Append data to a streaming time series
+EChartJS("mychart", """function(chart, el) {
+    var opt = chart.getOption();
+    opt.xAxis[0].data.push('6s');
+    opt.series[0].data.push(42);
+    chart.setOption(opt);
+}""")
+```
+
+### OOB Updates with `EChartOOB`
+
+Wrap chart scripts in an HTMX out-of-band swap container. Useful when
+returning chart updates alongside other HTML from a route.
+
+``` python
+@rt('/update')
+def get():
+    return Div(
+        P("Data updated!"),
+        EChartOOB(
+            EChartUpdate("mychart", {"series": [{"data": new_data}]}),
+            EChartJS("mychart", "function(chart, el) { el.style.filter = ''; }")
+        )
+    )
+```
+
 ### Memory Cleanup
 
 When HTMX removes a chart from the DOM (e.g. navigating tabs or swapping
@@ -193,7 +232,9 @@ needed.
 | Function | Description |
 |----|----|
 | `echarts_header(version)` | CDN script tag for ECharts (default v5.5.0) |
-| `EChart(options, ...)` | Render a chart with optional `theme`, `hx_get_click`, `hx_target_click` |
+| `EChart(options, ...)` | Render a chart with optional `theme`, `hx_get_click`, `hx_target_click`, `hx_click_vals`, `hx_click_cb` |
 | `EChartUpdate(chart_id, options, merge)` | Update an existing chart instance |
+| `EChartJS(chart_id, js_func)` | Run arbitrary JS against a chart instance; callback receives `(chart, el)` |
+| `EChartOOB(*scripts, sink_id)` | Wrap scripts in an OOB-swappable Div for HTMX responses |
 | `JSFunc(js_string)` | Mark a string as raw JavaScript (for formatters, callbacks, etc.) |
 | `preview_echart(echart, height)` | Preview a chart in a notebook via iframe |
