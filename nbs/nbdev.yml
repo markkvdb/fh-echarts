@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fh-echarts"
+  site-url: "https://markkvdb.github.io/fh-echarts"
+  description: ""
+  repo-branch: main
+  repo-url: "https://github.com/markkvdb/fh-echarts"
