@@ -43,7 +43,7 @@ def pie_chart():
     }
     return EChart(options, chart_id="pie1", theme="light", height="350px")
 
-# --- 3. Line chart (no theme = default) ---
+# --- 3. Line chart with custom click fields (multiple series) ---
 def line_chart():
     options = {
         "title": {"text": "Temperature Forecast"},
@@ -58,7 +58,25 @@ def line_chart():
             {"name": "Low",  "type": "line", "data": [10, 11, 13, 15, 14, 12, 10]}
         ]
     }
-    return EChart(options, chart_id="line1", height="350px")
+    return EChart(options, chart_id="line1", height="350px",
+                  hx_get_click="/line-clicked", hx_target_click="#line-click-result",
+                  hx_click_vals=["name", "value", "seriesName", "seriesIndex", "dataIndex"])
+
+# --- 3b. Scatter chart with custom JS click callback ---
+def scatter_chart():
+    options = {
+        "title": {"text": "Scatter Plot — Custom Click Callback"},
+        "tooltip": {"formatter": JSFunc("function(p) { return 'Point: (' + p.data[0] + ', ' + p.data[1] + ')'; }")},
+        "xAxis": {},
+        "yAxis": {},
+        "series": [{
+            "type": "scatter", "symbolSize": 12,
+            "data": [[10, 8], [20, 14], [30, 26], [40, 35], [50, 48], [25, 20], [35, 30]]
+        }]
+    }
+    return EChart(options, chart_id="scatter1", height="350px",
+                  hx_get_click="/scatter-clicked", hx_target_click="#scatter-click-result",
+                  hx_click_cb=JSFunc("function(params) { return {x: params.data[0], y: params.data[1], idx: params.dataIndex}; }"))
 
 # --- 4. Dynamic update demo chart ---
 def dynamic_chart():
@@ -85,8 +103,18 @@ def get():
         pie_chart(),
         Hr(),
 
-        H2("3. Line Chart — Default Theme + Axis Formatters"),
+        H2("3. Line Chart — Custom Click Fields (hx_click_vals)"),
+        P("Click any data point to see seriesName, seriesIndex, and dataIndex:"),
         line_chart(),
+        Div(id="line-click-result",
+            style="margin-top:10px; padding:10px; border:1px dashed gray; min-height:40px;"),
+        Hr(),
+
+        H2("3b. Scatter Plot — Custom JS Callback (hx_click_cb)"),
+        P("Click any point to extract x/y coordinates via a custom JS callback:"),
+        scatter_chart(),
+        Div(id="scatter-click-result",
+            style="margin-top:10px; padding:10px; border:1px dashed gray; min-height:40px;"),
         Hr(),
 
         H2("4. Dynamic Update via EChartUpdate"),
@@ -102,6 +130,22 @@ def get(name: str, value: int, seriesName: str):
         P(Strong("Server received click!"),
           f" Bar: {name}, Series: {seriesName}, Value: ${value:,}"),
         style="background:#e8f5e9; padding:8px; border-radius:4px;"
+    )
+
+@rt('/line-clicked')
+def get(name: str, value: str, seriesName: str, seriesIndex: int, dataIndex: int):
+    return Div(
+        P(Strong("Line click! "),
+          f"Day: {name}, Value: {value}, Series: {seriesName} (index {seriesIndex}), Data index: {dataIndex}"),
+        style="background:#e3f2fd; padding:8px; border-radius:4px;"
+    )
+
+@rt('/scatter-clicked')
+def get(x: float, y: float, idx: int):
+    return Div(
+        P(Strong("Scatter click! "),
+          f"Coordinates: ({x}, {y}), Point index: {idx}"),
+        style="background:#fff3e0; padding:8px; border-radius:4px;"
     )
 
 import random

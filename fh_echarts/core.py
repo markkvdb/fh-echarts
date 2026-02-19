@@ -37,7 +37,8 @@ class EChartsEncoder(json.JSONEncoder):
 
 # %% ../nbs/00_core.ipynb #d18e1759
 def EChart(options: dict, chart_id: str = None, width: str = "100%", height: str = "400px",
-           theme: str = None, hx_get_click: str = None, hx_target_click: str = None):
+           theme: str = None, hx_get_click: str = None, hx_target_click: str = None,
+           hx_click_vals: list = None, hx_click_cb: str = None):
     "Render an EChart with support for themes, JS formatters, HTMX click events, and memory cleanup."
     chart_id = chart_id or f"echart_{uuid.uuid4().hex}"
 
@@ -51,15 +52,18 @@ def EChart(options: dict, chart_id: str = None, width: str = "100%", height: str
     click_logic = ""
     if hx_get_click:
         target = f"target: '{hx_target_click}', " if hx_target_click else ""
+        if hx_click_cb:
+            vals_js = f"var vals = ({hx_click_cb})(params);"
+        else:
+            fields = hx_click_vals or ["name", "value", "seriesName"]
+            fields_js = json.dumps(fields)
+            vals_js = f"var vals = {{}}; {fields_js}.forEach(function(k) {{ vals[k] = params[k]; }});"
         click_logic = f"""
         myChart.on('click', function(params) {{
+            {vals_js}
             htmx.ajax('GET', '{hx_get_click}', {{
                 {target}
-                values: {{
-                    name: params.name,
-                    value: params.value,
-                    seriesName: params.seriesName
-                }}
+                values: vals
             }});
         }});
         """
