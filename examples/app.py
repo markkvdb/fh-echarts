@@ -1,5 +1,5 @@
 from fasthtml.common import *
-from fh_echarts.core import echarts_header, EChart, EChartUpdate, JSFunc
+from fh_echarts.core import echarts_header, EChart, EChartUpdate, EChartJS, EChartOOB, JSFunc
 
 app, rt = fast_app(hdrs=(echarts_header(),))
 
@@ -88,6 +88,33 @@ def dynamic_chart():
     }
     return EChart(options, chart_id="dynamic1", theme="dark", height="350px")
 
+# --- 5. Append mode demo (streaming time series) ---
+_stream_counter = [0]
+
+def stream_chart():
+    options = {
+        "title": {"text": "Live Sensor Data (append mode)"},
+        "tooltip": {"trigger": "axis"},
+        "xAxis": {"type": "category", "data": ["0s", "1s", "2s", "3s", "4s"]},
+        "yAxis": {"type": "value"},
+        "series": [
+            {"name": "Sensor A", "type": "line", "data": [22, 24, 21, 25, 23]},
+            {"name": "Sensor B", "type": "line", "data": [15, 18, 14, 17, 16]}
+        ]
+    }
+    _stream_counter[0] = 5
+    return EChart(options, chart_id="stream1", height="350px")
+
+# --- 6. EChartJS demo (blur/unblur) ---
+def js_demo_chart():
+    options = {
+        "title": {"text": "EChartJS Demo — Blur/Unblur"},
+        "xAxis": {"data": ["Q1", "Q2", "Q3", "Q4"]},
+        "yAxis": {},
+        "series": [{"type": "bar", "data": [80, 120, 95, 140], "name": "Sales"}]
+    }
+    return EChart(options, chart_id="jsdemo1", height="350px")
+
 # --- Routes ---
 @rt('/')
 def get():
@@ -122,6 +149,30 @@ def get():
         Button("Randomize Data", hx_get="/randomize", hx_target="#update-slot",
                hx_swap="innerHTML", style="margin-top:10px;"),
         Div(id="update-slot"),
+        Hr(),
+
+        H2("5. Append Mode — Streaming Time Series"),
+        P("Click to append new data points to both series:"),
+        stream_chart(),
+        Button("Add Data Point", hx_get="/append-point", hx_target="#append-slot",
+               hx_swap="innerHTML", style="margin-top:10px;"),
+        Div(id="append-slot"),
+        Hr(),
+
+        H2("6. EChartJS — Run Arbitrary JS on Chart"),
+        P("Use EChartJS to blur/unblur a chart, or stash data on the DOM element:"),
+        js_demo_chart(),
+        Div(
+            Button("Blur", hx_get="/blur-chart", hx_target="#js-slot",
+                   hx_swap="innerHTML", style="margin-right:8px;"),
+            Button("Unblur", hx_get="/unblur-chart", hx_target="#js-slot",
+                   hx_swap="innerHTML", style="margin-right:8px;"),
+            Button("Stash & Log Data", hx_get="/stash-data", hx_target="#js-slot",
+                   hx_swap="innerHTML"),
+            style="margin-top:10px;"
+        ),
+        Div(id="js-slot"),
+        Div(id="script-sink"),
     )
 
 @rt('/bar-clicked')
@@ -156,6 +207,37 @@ def get():
     return EChartUpdate("dynamic1", {
         "series": [{"data": new_data}]
     })
+
+@rt('/append-point')
+def get():
+    i = _stream_counter[0]
+    _stream_counter[0] += 1
+    a, b = random.randint(18, 30), random.randint(10, 22)
+    return EChartUpdate("stream1", {
+        "xAxis": {"data": [f"{i}s"]},
+        "series": [{"data": [a]}, {"data": [b]}]
+    }, mode="append")
+
+@rt('/blur-chart')
+def get():
+    return EChartOOB(
+        EChartJS("jsdemo1", "function(chart, el) { el.style.filter = 'blur(4px)'; }")
+    )
+
+@rt('/unblur-chart')
+def get():
+    return EChartOOB(
+        EChartJS("jsdemo1", "function(chart, el) { el.style.filter = ''; }")
+    )
+
+@rt('/stash-data')
+def get():
+    return EChartOOB(
+        EChartJS("jsdemo1", """function(chart, el) {
+            el._stashedData = chart.getOption().series[0].data;
+            console.log('Stashed data:', el._stashedData);
+        }""")
+    )
 
 if __name__ == "__main__":
     import argparse
