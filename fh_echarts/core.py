@@ -10,7 +10,6 @@ import json
 import uuid
 
 from fasthtml.common import Script, Div, NotStr, to_xml
-from IPython.display import HTML
 
 # %% ../nbs/00_core.ipynb #43a84606
 DEFAULT_ECHARTS_VERSION = "5.5.0"
@@ -104,6 +103,8 @@ def EChart(options: dict, chart_id: str = None, width: str = "100%", height: str
 
 # %% ../nbs/00_core.ipynb #93b4461c
 def preview_echart(echart, height="450px"):
+    from IPython.display import HTML
+
     raw_html = to_xml(echart)
     srcdoc = f'<script src="https://cdn.jsdelivr.net/npm/echarts@{DEFAULT_ECHARTS_VERSION}/dist/echarts.min.js"></script>{raw_html}'
     srcdoc = srcdoc.replace("'", "&#39;")
