@@ -116,41 +116,12 @@ def preview_echart(echart, height="450px"):
     return HTML(f"<iframe srcdoc='{srcdoc}' style='width:100%;height:{height};border:none;'></iframe>")
 
 # %% ../nbs/00_core.ipynb #7e1997cf
-def EChartUpdate(chart_id: str, options: dict, mode: str = "merge"):
-    "Update an existing chart. `mode` can be 'merge' (default), 'replace', or 'append' (appends to series data)."
+def EChartUpdate(chart_id: str, options: dict, merge: bool = True):
+    "Update an existing chart instance. Set `merge=False` to replace all options instead of merging."
     safe_options = json.dumps(options, cls=EChartsEncoder)
+    not_merge_str = "false" if merge else "true"
 
-    if mode == "append":
-        js_code = f"""
-    (function() {{
-        const dom = document.getElementById('{chart_id}');
-        if (!dom) return;
-        const myChart = echarts.getInstanceByDom(dom);
-        if (!myChart) return;
-        const newOpt = {safe_options};
-        function reviveJS(obj) {{
-            for (let k in obj) {{
-                if (typeof obj[k] === 'object' && obj[k] !== null) reviveJS(obj[k]);
-                else if (typeof obj[k] === 'string' && obj[k].startsWith('!JS!')) {{
-                    try {{ obj[k] = eval('(' + obj[k].slice(4) + ')'); }} catch(e) {{}}
-                }}
-            }}
-        }}
-        reviveJS(newOpt);
-        const curOpt = myChart.getOption();
-        if (newOpt.series && curOpt.series) {{
-            newOpt.series.forEach(function(s, i) {{
-                if (s.data && curOpt.series[i] && curOpt.series[i].data) {{
-                    s.data = curOpt.series[i].data.concat(s.data);
-                }}
-            }});
-        }}
-        myChart.setOption(newOpt);
-    }})();
-    """
-    else:
-        not_merge_str = "true" if mode == "replace" else "false"
-        js_code = f"""
+    js_code = f"""
     (function() {{
         const dom = document.getElementById('{chart_id}');
         if (!dom) return;

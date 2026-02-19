@@ -93,7 +93,7 @@ _stream_counter = [0]
 
 def stream_chart():
     options = {
-        "title": {"text": "Live Sensor Data (append mode)"},
+        "title": {"text": "Live Sensor Data (append via EChartJS)"},
         "tooltip": {"trigger": "axis"},
         "xAxis": {"type": "category", "data": ["0s", "1s", "2s", "3s", "4s"]},
         "yAxis": {"type": "value"},
@@ -151,12 +151,11 @@ def get():
         Div(id="update-slot"),
         Hr(),
 
-        H2("5. Append Mode — Streaming Time Series"),
-        P("Click to append new data points to both series:"),
+        H2("5. Streaming Time Series via EChartJS"),
+        P("Click to append new data points using EChartJS:"),
         stream_chart(),
-        Button("Add Data Point", hx_get="/append-point", hx_target="#append-slot",
+        Button("Add Data Point", hx_get="/append-point", hx_target="#script-sink",
                hx_swap="innerHTML", style="margin-top:10px;"),
-        Div(id="append-slot"),
         Hr(),
 
         H2("6. EChartJS — Run Arbitrary JS on Chart"),
@@ -213,10 +212,15 @@ def get():
     i = _stream_counter[0]
     _stream_counter[0] += 1
     a, b = random.randint(18, 30), random.randint(10, 22)
-    return EChartUpdate("stream1", {
-        "xAxis": {"data": [f"{i}s"]},
-        "series": [{"data": [a]}, {"data": [b]}]
-    }, mode="append")
+    return EChartOOB(
+        EChartJS("stream1", f"""function(chart, el) {{
+            var opt = chart.getOption();
+            opt.xAxis[0].data.push('{i}s');
+            opt.series[0].data.push({a});
+            opt.series[1].data.push({b});
+            chart.setOption(opt);
+        }}""")
+    )
 
 @rt('/blur-chart')
 def get():
