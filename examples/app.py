@@ -1,5 +1,7 @@
 from fasthtml.common import *
 from fh_echarts.core import echarts_header, EChart, EChartUpdate, EChartJS, EChartOOB, JSFunc
+from fh_echarts.helpers import ts_options
+import pandas as pd, numpy as np
 
 app, rt = fast_app(hdrs=(echarts_header(),))
 
@@ -115,6 +117,16 @@ def js_demo_chart():
     }
     return EChart(options, chart_id="jsdemo1", height="350px")
 
+# --- 7. Pandas DataFrame with ts_options ---
+def pandas_chart():
+    dates = pd.date_range("2024-01-01", periods=90, freq="D")
+    df = pd.DataFrame({"date": dates, "temperature": 20 + 5 * np.random.randn(90).cumsum() * 0.1,
+                        "humidity": 60 + 3 * np.random.randn(90).cumsum() * 0.1})
+    opts = ts_options(df, x="date")
+    opts["title"] = {"text": "Weather Station (from Pandas DataFrame)"}
+    opts["legend"] = {"show": True}
+    return EChart(opts, chart_id="pandas1", height="350px")
+
 # --- Routes ---
 @rt('/')
 def get():
@@ -172,6 +184,11 @@ def get():
         ),
         Div(id="js-slot"),
         Div(id="script-sink"),
+        Hr(),
+
+        H2("7. Pandas DataFrame with ts_options"),
+        P("Use ts_options() to turn a DataFrame into a time-series chart:"),
+        pandas_chart(),
     )
 
 @rt('/bar-clicked')

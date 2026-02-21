@@ -227,6 +227,37 @@ content), the ECharts instance and `ResizeObserver` are automatically
 disposed via the `htmx:beforeCleanupElement` event. No extra code
 needed.
 
+### Pandas Time Series with `ts_options`
+
+Use `ts_options` from `fh_echarts.helpers` to turn a Pandas DataFrame
+into a time-series chart with minimal code. It auto-detects datetime
+columns, numeric series, and handles NaNs. The result is a plain dict
+you can customise before passing to `EChart`.
+
+``` python
+from fh_echarts.helpers import ts_options
+import pandas as pd, numpy as np
+
+dates = pd.date_range("2024-01-01", periods=30, freq="D")
+df = pd.DataFrame({"date": dates,
+                    "temperature": 20 + 5 * np.random.randn(30).cumsum() * 0.1,
+                    "humidity": 60 + 3 * np.random.randn(30).cumsum() * 0.1})
+
+opts = ts_options(df, x="date")
+opts["title"] = {"text": "Weather Station"}
+opts["legend"] = {"show": True}
+EChart(opts)
+```
+
+Works with DataFrames, DatetimeIndex, individual Series, and you can
+select specific y columns:
+
+``` python
+ts_options(df, x="date", y="temperature")
+ts_options(df.set_index("date"))
+ts_options(df.set_index("date")["temperature"])
+```
+
 ## API Reference
 
 | Function | Description |
@@ -238,3 +269,4 @@ needed.
 | `EChartOOB(*scripts, sink_id)` | Wrap scripts in an OOB-swappable Div for HTMX responses |
 | `JSFunc(js_string)` | Mark a string as raw JavaScript (for formatters, callbacks, etc.) |
 | `preview_echart(echart, height)` | Preview a chart in a notebook via iframe |
+| `ts_options(data, x, y, kind)` | Convert a Pandas DataFrame/Series into an ECharts time-series options dict |

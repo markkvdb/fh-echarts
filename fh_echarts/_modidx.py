@@ -14,4 +14,5 @@ d = { 'settings': { 'branch': 'main',
                                  'fh_echarts.core.EChartsEncoder.encode': ('core.html#echartsencoder.encode', 'fh_echarts/core.py'),
                                  'fh_echarts.core.JSFunc': ('core.html#jsfunc', 'fh_echarts/core.py'),
                                  'fh_echarts.core.echarts_header': ('core.html#echarts_header', 'fh_echarts/core.py'),
-                                 'fh_echarts.core.preview_echart': ('core.html#preview_echart', 'fh_echarts/core.py')}}}
+                                 'fh_echarts.core.preview_echart': ('core.html#preview_echart', 'fh_echarts/core.py')},
+            'fh_echarts.helpers': {'fh_echarts.helpers.ts_options': ('helpers.html#ts_options', 'fh_echarts/helpers.py')}}}
