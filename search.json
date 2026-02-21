@@ -1,0 +1,142 @@
+[
+  {
+    "objectID": "helpers.html",
+    "href": "helpers.html",
+    "title": "helpers",
+    "section": "",
+    "text": "import pandas as pd\nimport numpy as np\n\nfrom fh_echarts.core import EChart, preview_echart",
+    "crumbs": [
+      "helpers"
+    ]
+  },
+  {
+    "objectID": "helpers.html#examples",
+    "href": "helpers.html#examples",
+    "title": "helpers",
+    "section": "Examples",
+    "text": "Examples\nCreate some sample time-series data to demonstrate ts_options:\n\ndates = pd.date_range(\"2024-01-01\", periods=30, freq=\"D\")\ndf = pd.DataFrame({\"date\": dates, \"temperature\": 20 + 5 * np.random.randn(30).cumsum() * 0.1, \"humidity\": 60 + 3 * np.random.randn(30).cumsum() * 0.1})\ndf.head()\n\n\n\n\n\n\n\n\ndate\ntemperature\nhumidity\n\n\n\n\n0\n2024-01-01\n20.147174\n59.807882\n\n\n1\n2024-01-02\n19.853315\n59.886825\n\n\n2\n2024-01-03\n19.951529\n59.373097\n\n\n3\n2024-01-04\n19.591586\n59.503999\n\n\n4\n2024-01-05\n19.548946\n59.759795\n\n\n\n\n\n\n\n\nBasic usage — DataFrame with explicit x column\n\nopts = ts_options(df, x=\"date\")\nchart = EChart(opts)\npreview_echart(chart)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")\n\n\n\n\n\n\n\nSelecting specific y columns\n\nopts_single = ts_options(df, x=\"date\", y=\"temperature\")\nchart_single = EChart(opts_single)\npreview_echart(chart_single)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")\n\n\n\n\n\n\n\nUsing a DatetimeIndex (no explicit x column)\n\ndf_idx = df.set_index(\"date\")\nopts_idx = ts_options(df_idx)\nchart_idx = EChart(opts_idx)\npreview_echart(chart_idx)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")\n\n\n\n\n\n\n\nFrom a Pandas Series\n\nseries = df.set_index(\"date\")[\"temperature\"]\nopts_series = ts_options(series)\nchart_series = EChart(opts_series)\npreview_echart(chart_series)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")\n\n\n\n\n\n\n\nCustomising the result\nts_options returns a plain dictionary, so you can merge in any ECharts options before passing to EChart:\n\nopts_custom = ts_options(df, x=\"date\")\nopts_custom[\"title\"] = {\"text\": \"Weather Station\"}\nopts_custom[\"legend\"] = {\"show\": True}\nopts_custom[\"yAxis\"][\"name\"] = \"°C / %\"\n\nchart_custom = EChart(opts_custom, theme=\"dark\")\npreview_echart(chart_custom)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")",
+    "crumbs": [
+      "helpers"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fh-echarts",
+    "section": "",
+    "text": "pip install fh-echarts\nOr install latest from GitHub:\npip install git+https://github.com/markkvdb/fh-echarts.git",
+    "crumbs": [
+      "fh-echarts"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "fh-echarts",
+    "section": "",
+    "text": "pip install fh-echarts\nOr install latest from GitHub:\npip install git+https://github.com/markkvdb/fh-echarts.git",
+    "crumbs": [
+      "fh-echarts"
+    ]
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "fh-echarts",
+    "section": "Quick Start",
+    "text": "Quick Start\nAdd echarts_header() to your FastHTML app headers, then use EChart() to render charts:\nfrom fasthtml.common import *\nfrom fh_echarts.core import echarts_header, EChart\n\napp, rt = fast_app(hdrs=(echarts_header(),))\n\n@rt('/')\ndef get():\n    options = {\n        \"xAxis\": {\"type\": \"category\", \"data\": [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"]},\n        \"yAxis\": {\"type\": \"value\"},\n        \"series\": [{\"data\": [120, 200, 150, 80, 70], \"type\": \"bar\"}]\n    }\n    return Titled(\"My Chart\", EChart(options))\n\nserve()",
+    "crumbs": [
+      "fh-echarts"
+    ]
+  },
+  {
+    "objectID": "index.html#features",
+    "href": "index.html#features",
+    "title": "fh-echarts",
+    "section": "Features",
+    "text": "Features\n\nBasic Bar Chart\nPass an ECharts option dict to EChart(). Use preview_echart() to preview charts in notebooks.\n\noptions = {\n    \"xAxis\": {\"type\": \"category\", \"data\": [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"]},\n    \"yAxis\": {\"type\": \"value\"},\n    \"series\": [{\"data\": [120, 200, 150, 80, 70], \"type\": \"bar\"}]\n}\npreview_echart(EChart(options, chart_id=\"idx_bar\"))\n\n\n\nDark Theme\nPass theme=\"dark\" (or \"light\") to use ECharts’ built-in themes.\n\noptions_dark = {\n    \"title\": {\"text\": \"Dark Theme\"},\n    \"xAxis\": {\"data\": [\"A\", \"B\", \"C\", \"D\"]},\n    \"yAxis\": {},\n    \"series\": [{\"type\": \"bar\", \"data\": [10, 25, 15, 30]}]\n}\npreview_echart(EChart(options_dark, chart_id=\"idx_dark\", theme=\"dark\"))\n\n\n\nJavaScript Functions with JSFunc\nECharts uses JavaScript functions for custom tooltips, axis labels, etc. Normally json.dumps would turn these into literal strings. Wrap them in JSFunc() and they’ll be revived as real JS functions in the browser.\n\noptions_fmt = {\n    \"title\": {\"text\": \"Custom Tooltip\"},\n    \"tooltip\": {\n        \"formatter\": JSFunc(\"function(p) { return '&lt;b&gt;' + p.name + '&lt;/b&gt;: $' + p.value.toLocaleString(); }\")\n    },\n    \"xAxis\": {\"data\": [\"Shirts\", \"Sweaters\", \"Hats\", \"Shoes\"]},\n    \"yAxis\": {\"axisLabel\": {\n        \"formatter\": JSFunc(\"function(v) { return '$' + v; }\")\n    }},\n    \"series\": [{\"type\": \"bar\", \"data\": [500, 2000, 360, 1200]}]\n}\npreview_echart(EChart(options_fmt, chart_id=\"idx_fmt\", theme=\"dark\"))\n\n\n\nLine and Pie Charts\nAny ECharts chart type works — just set \"type\" in the series.\n\nline_opts = {\n    \"title\": {\"text\": \"Temperature (°C)\"},\n    \"xAxis\": {\"type\": \"category\", \"data\": [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\"]},\n    \"yAxis\": {\"type\": \"value\", \"axisLabel\": {\n        \"formatter\": JSFunc(\"function(v) { return v + '°C'; }\")\n    }},\n    \"series\": [{\"type\": \"line\", \"data\": [2, 5, 12, 18, 24, 28], \"smooth\": True}]\n}\npreview_echart(EChart(line_opts, chart_id=\"idx_line\"))\n\n\npie_opts = {\n    \"title\": {\"text\": \"Browser Share\", \"left\": \"center\"},\n    \"tooltip\": {\n        \"formatter\": JSFunc(\"function(p) { return p.name + ': ' + p.percent + '%'; }\")\n    },\n    \"series\": [{\n        \"type\": \"pie\", \"radius\": \"60%\",\n        \"data\": [\n            {\"value\": 65, \"name\": \"Chrome\"},\n            {\"value\": 18, \"name\": \"Safari\"},\n            {\"value\": 10, \"name\": \"Firefox\"},\n            {\"value\":  7, \"name\": \"Other\"}\n        ]\n    }]\n}\npreview_echart(EChart(pie_opts, chart_id=\"idx_pie\"))\n\n\n\nHTMX Click Integration\nTurn chart clicks into server requests with hx_get_click. By default, name, value, and seriesName are sent as query parameters.\nEChart(options, hx_get_click=\"/bar-clicked\", hx_target_click=\"#result\")\n\n@rt('/bar-clicked')\ndef get(name: str, value: int, seriesName: str):\n    return P(f\"Clicked {name} ({seriesName}): {value}\")\nUse hx_click_vals to select which fields to extract from the click event (useful for multi-series charts):\nEChart(options, hx_get_click=\"/clicked\",\n       hx_click_vals=[\"name\", \"seriesIndex\", \"dataIndex\", \"data\"])\nFor full control, pass a JS callback via hx_click_cb that receives params and returns a values dict:\nEChart(options, hx_get_click=\"/clicked\",\n       hx_click_cb=JSFunc(\"function(params) { return {x: params.data[0], y: params.data[1]}; }\"))\n\n### Dynamic Updates with `EChartUpdate`\n\nUpdate an existing chart without re-creating it. Return an `EChartUpdate` from a route to merge new options into the chart.\n\n```python\nimport random\n\n@rt('/')\ndef get():\n    options = {\n        \"xAxis\": {\"data\": [\"A\", \"B\", \"C\"]},\n        \"yAxis\": {},\n        \"series\": [{\"type\": \"bar\", \"data\": [10, 20, 30]}]\n    }\n    return Div(\n        EChart(options, chart_id=\"updatable\"),\n        Button(\"Randomize\", hx_get=\"/randomize\", hx_target=\"#update-slot\"),\n        Div(id=\"update-slot\")\n    )\n\n@rt('/randomize')\ndef get():\n    new_data = [random.randint(5, 100) for _ in range(3)]\n    return EChartUpdate(\"updatable\", {\"series\": [{\"data\": new_data}]})\nSet merge=False to replace all options instead of merging.\n\n\nRun Arbitrary JS with EChartJS\nExecute any JavaScript against a chart instance. The callback receives (chart, el) — the ECharts instance and the DOM element.\n# Blur a chart\nEChartJS(\"mychart\", \"function(chart, el) { el.style.filter = 'blur(4px)'; }\")\n\n# Stash current data on the DOM element\nEChartJS(\"mychart\", \"function(chart, el) { el._loadData = chart.getOption().series[0].data; }\")\n\n# Append data to a streaming time series\nEChartJS(\"mychart\", \"\"\"function(chart, el) {\n    var opt = chart.getOption();\n    opt.xAxis[0].data.push('6s');\n    opt.series[0].data.push(42);\n    chart.setOption(opt);\n}\"\"\")\n\n\nOOB Updates with EChartOOB\nWrap chart scripts in an HTMX out-of-band swap container. Useful when returning chart updates alongside other HTML from a route.\n@rt('/update')\ndef get():\n    return Div(\n        P(\"Data updated!\"),\n        EChartOOB(\n            EChartUpdate(\"mychart\", {\"series\": [{\"data\": new_data}]}),\n            EChartJS(\"mychart\", \"function(chart, el) { el.style.filter = ''; }\")\n        )\n    )\n\n\nMemory Cleanup\nWhen HTMX removes a chart from the DOM (e.g. navigating tabs or swapping content), the ECharts instance and ResizeObserver are automatically disposed via the htmx:beforeCleanupElement event. No extra code needed.\n\n\nPandas Time Series with ts_options\nUse ts_options from fh_echarts.helpers to turn a Pandas DataFrame into a time-series chart with minimal code. It auto-detects datetime columns, numeric series, and handles NaNs. The result is a plain dict you can customise before passing to EChart.\nfrom fh_echarts.helpers import ts_options\nimport pandas as pd, numpy as np\n\ndates = pd.date_range(\"2024-01-01\", periods=30, freq=\"D\")\ndf = pd.DataFrame({\"date\": dates,\n                    \"temperature\": 20 + 5 * np.random.randn(30).cumsum() * 0.1,\n                    \"humidity\": 60 + 3 * np.random.randn(30).cumsum() * 0.1})\n\nopts = ts_options(df, x=\"date\")\nopts[\"title\"] = {\"text\": \"Weather Station\"}\nopts[\"legend\"] = {\"show\": True}\nEChart(opts)\nWorks with DataFrames, DatetimeIndex, individual Series, and you can select specific y columns:\nts_options(df, x=\"date\", y=\"temperature\")\nts_options(df.set_index(\"date\"))\nts_options(df.set_index(\"date\")[\"temperature\"])",
+    "crumbs": [
+      "fh-echarts"
+    ]
+  },
+  {
+    "objectID": "index.html#api-reference",
+    "href": "index.html#api-reference",
+    "title": "fh-echarts",
+    "section": "API Reference",
+    "text": "API Reference\n\n\n\n\n\n\n\nFunction\nDescription\n\n\n\n\necharts_header(version)\nCDN script tag for ECharts (default v5.5.0)\n\n\nEChart(options, ...)\nRender a chart with optional theme, hx_get_click, hx_target_click, hx_click_vals, hx_click_cb\n\n\nEChartUpdate(chart_id, options, merge)\nUpdate an existing chart instance\n\n\nEChartJS(chart_id, js_func)\nRun arbitrary JS against a chart instance; callback receives (chart, el)\n\n\nEChartOOB(*scripts, sink_id)\nWrap scripts in an OOB-swappable Div for HTMX responses\n\n\nJSFunc(js_string)\nMark a string as raw JavaScript (for formatters, callbacks, etc.)\n\n\npreview_echart(echart, height)\nPreview a chart in a notebook via iframe\n\n\nts_options(data, x, y, kind)\nConvert a Pandas DataFrame/Series into an ECharts time-series options dict",
+    "crumbs": [
+      "fh-echarts"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "def echarts_header(\n    version:str='5.5.0'\n):\n\nInclude the ECharts CDN script tag in your FastHTML app headers.\nInclude echarts_header() in your FastHTML app’s hdrs to load the ECharts library:\napp, rt = fast_app(hdrs=(echarts_header(),))",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#header",
+    "href": "core.html#header",
+    "title": "core",
+    "section": "",
+    "text": "def echarts_header(\n    version:str='5.5.0'\n):\n\nInclude the ECharts CDN script tag in your FastHTML app headers.\nInclude echarts_header() in your FastHTML app’s hdrs to load the ECharts library:\napp, rt = fast_app(hdrs=(echarts_header(),))",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#javascript-function-support",
+    "href": "core.html#javascript-function-support",
+    "title": "core",
+    "section": "JavaScript Function Support",
+    "text": "JavaScript Function Support\nECharts relies heavily on JavaScript functions for custom tooltips, axis labels, etc. Since json.dumps turns everything into strings, we need a way to mark certain strings as raw JavaScript. The JSFunc wrapper and EChartsEncoder handle this.\n\n\nJSFunc\n\ndef JSFunc(\n    args:VAR_POSITIONAL, kwargs:VAR_KEYWORD\n):\n\nMarker class to flag a string as a raw JavaScript function for ECharts options.\n\n\n\nEChartsEncoder\n\ndef EChartsEncoder(\n    skipkeys:bool=False, ensure_ascii:bool=True, check_circular:bool=True, allow_nan:bool=True, sort_keys:bool=False,\n    indent:NoneType=None, separators:NoneType=None, default:NoneType=None\n):\n\nCustom JSON encoder that flags JSFunc values with a !JS! prefix so the frontend can revive them.\nFor example, you can use JSFunc to pass a custom tooltip formatter:\n\nopts = {\"tooltip\": {\"formatter\": JSFunc(\"function(p) { return p.name + ': $' + p.value; }\")}}\nencoded = json.dumps(opts, cls=EChartsEncoder)\nassert '!JS!' in encoded\nprint(encoded)\n\n{\"tooltip\": {\"formatter\": \"!JS!function(p) { return p.name + ': $' + p.value; }\"}}",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#echart-component",
+    "href": "core.html#echart-component",
+    "title": "core",
+    "section": "EChart Component",
+    "text": "EChart Component\n\n\nEChart\n\ndef EChart(\n    options:dict, chart_id:str=None, width:str='100%', height:str='400px', theme:str=None, hx_get_click:str=None,\n    hx_target_click:str=None, hx_click_vals:list=None, hx_click_cb:str=None\n):\n\nRender an EChart with support for themes, JS formatters, HTMX click events, and memory cleanup.\n\n\n\npreview_echart\n\ndef preview_echart(\n    echart, height:str='450px'\n):\n\nA basic bar chart:\n\noptions = {\n    \"xAxis\": {\"type\": \"category\", \"data\": [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"]},\n    \"yAxis\": {\"type\": \"value\"},\n    \"series\": [{\"data\": [120, 200, 150, 80, 70], \"type\": \"bar\"}]\n}\nchart = EChart(options, chart_id=\"demo_bar\")\nhtml = to_xml(chart)\nassert 'id=\"demo_bar\"' in html\nassert 'echarts.init' in html\n\npreview_echart(chart)\n\n/usr/local/lib/python3.12/site-packages/IPython/core/display.py:447: UserWarning: Consider using IPython.display.IFrame instead\n  warnings.warn(\"Consider using IPython.display.IFrame instead\")\n\n\n\n\n\nWith dark theme and a JS tooltip formatter:\n\noptions_dark = {\n    \"title\": {\"text\": \"Sales\"},\n    \"tooltip\": {\n        \"formatter\": JSFunc(\"function(p) { return '&lt;b&gt;' + p.name + '&lt;/b&gt;: $' + p.value; }\")\n    },\n    \"xAxis\": {\"data\": [\"Shirts\", \"Sweaters\", \"Hats\"]},\n    \"yAxis\": {},\n    \"series\": [{\"type\": \"bar\", \"data\": [5, 20, 36]}]\n}\nchart_dark = EChart(options_dark, chart_id=\"demo_dark\", theme=\"dark\")\nhtml_dark = to_xml(chart_dark)\nassert \"'dark'\" in html_dark\nassert '!JS!' in html_dark\nprint('Theme and JSFunc working ✓')\n\npreview_echart(chart_dark)\n\nTheme and JSFunc working ✓\n\n\n\n\n\nWith HTMX click integration:\n\nchart_htmx = EChart(options, chart_id=\"demo_htmx\",\n                     hx_get_click=\"/bar-clicked\", hx_target_click=\"#result\")\nhtml_htmx = to_xml(chart_htmx)\nassert '/bar-clicked' in html_htmx\nassert \"#result\" in html_htmx\nprint('HTMX click integration working ✓')\n\nHTMX click integration working ✓\n\n\nWith custom click fields (e.g. for multiple time series):\n\nchart_fields = EChart(options, chart_id=\"demo_fields\",\n                      hx_get_click=\"/clicked\",\n                      hx_click_vals=[\"name\", \"seriesIndex\", \"dataIndex\", \"data\"])\nhtml_fields = to_xml(chart_fields)\nassert 'seriesIndex' in html_fields\nassert 'dataIndex' in html_fields\nprint('Custom click fields working ✓')\n\nCustom click fields working ✓\n\n\nWith a custom JS click callback for full control:\n\nchart_cb = EChart(options, chart_id=\"demo_cb\",\n                  hx_get_click=\"/clicked\",\n                  hx_click_cb=JSFunc(\"function(params) { return {x: params.data[0], y: params.data[1], series: params.seriesName}; }\"))\nhtml_cb = to_xml(chart_cb)\nassert 'params.data[0]' in html_cb\nassert 'params.seriesName' in html_cb\nprint('Custom click callback working ✓')\n\nCustom click callback working ✓",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#echartupdate",
+    "href": "core.html#echartupdate",
+    "title": "core",
+    "section": "EChartUpdate",
+    "text": "EChartUpdate\n\n\nEChartUpdate\n\ndef EChartUpdate(\n    chart_id:str, options:dict, merge:bool=True\n):\n\nUpdate an existing chart instance. Set merge=False to replace all options instead of merging.\n\nupdate = EChartUpdate(\"demo_bar\", {\"series\": [{\"data\": [300, 400, 500, 600, 700]}]})\nhtml_update = to_xml(update)\nassert 'getInstanceByDom' in html_update\nassert '300' in html_update",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#echartjs",
+    "href": "core.html#echartjs",
+    "title": "core",
+    "section": "EChartJS",
+    "text": "EChartJS\n\n\nEChartJS\n\ndef EChartJS(\n    chart_id:str, js_func:str\n):\n\nRun a JS function against an existing chart instance. js_func receives (chart, el) as arguments.\n\n# Stash data on the DOM element\njs_stash = EChartJS(\"demo_bar\", \"function(chart, el) { el._loadData = chart.getOption().series[0].data; }\")\nhtml_stash = to_xml(js_stash)\nassert '_loadData' in html_stash\nassert 'getInstanceByDom' in html_stash\n\n# Apply CSS filter\njs_blur = EChartJS(\"demo_bar\", \"function(chart, el) { el.style.filter = 'blur(4px)'; }\")\nhtml_blur = to_xml(js_blur)\nassert 'blur' in html_blur\nprint('EChartJS working ✓')\n\nEChartJS working ✓",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "core.html#echartoob",
+    "href": "core.html#echartoob",
+    "title": "core",
+    "section": "EChartOOB",
+    "text": "EChartOOB\n\n\nEChartOOB\n\ndef EChartOOB(\n    scripts:VAR_POSITIONAL, sink_id:str='script-sink'\n):\n\nWrap one or more EChart Script elements in an OOB-swappable Div for HTMX responses.\n\noob = EChartOOB(\n    EChartUpdate(\"demo_bar\", {\"series\": [{\"data\": [100]}]}),\n    EChartJS(\"demo_bar\", \"function(chart, el) { el.style.filter = ''; }\")\n)\nhtml_oob = to_xml(oob)\nassert 'hx-swap-oob=\"true\"' in html_oob\nassert 'script-sink' in html_oob\nassert html_oob.count('&lt;script&gt;') == 2\nprint('EChartOOB working ✓')\n\nEChartOOB working ✓",
+    "crumbs": [
+      "core"
+    ]
+  }
+]
