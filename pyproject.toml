@@ -15,7 +15,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
-dependencies = ["python-fasthtml"]
+dependencies = [
+    "python-fasthtml",
+]
 
 [project.urls]
 Repository = "https://github.com/markkvdb/fh-echarts"
@@ -23,6 +25,11 @@ Documentation = "https://markkvdb.github.io/fh-echarts/"
 
 [project.entry-points.nbdev]
 fh_echarts = "fh_echarts._modidx:d"
+
+[project.optional-dependencies]
+dev = [
+    "pandas>=2.3.3",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "fh_echarts.__version__"}
